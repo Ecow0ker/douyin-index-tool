@@ -167,5 +167,4 @@ PYTHONPATH=src python3 run_webview_gui.py --demo --ui-self-test-output ./ui-test
 
 ## 联系
 
-- GitHub：<https://github.com/Ecow0ker/douyin-index-tool>
 - QQ群：610645081

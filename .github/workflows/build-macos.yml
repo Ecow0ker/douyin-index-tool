@@ -1,0 +1,54 @@
+name: Build macOS Apps
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            arch: x64
+            machine: x86_64
+          - runner: macos-15
+            arch: arm64
+            machine: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Run tests
+        run: |
+          python -m pip install -r requirements-webview.txt
+          PYTHONPATH=src python -m unittest discover -s tests -v
+      - name: Build native app
+        run: SKIP_SMOKE_TEST=1 TARGET_ARCH=${{ matrix.arch }} ./build_macos.sh
+      - name: Verify architecture, signature and interface
+        run: |
+          APP="dist/macos-${{ matrix.arch }}/抖音指数查询工具.app"
+          EXECUTABLE="$APP/Contents/MacOS/抖音指数查询工具"
+          test "$(lipo -archs "$EXECUTABLE")" = "${{ matrix.machine }}"
+          "$EXECUTABLE" --demo --ui-self-test-output "/tmp/ui-${{ matrix.arch }}.json"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path("/tmp/ui-${{ matrix.arch }}.json").read_text(encoding="utf-8"))
+          assert value["allPass"], value
+          PY
+          codesign --verify --deep --strict "$APP"
+      - name: Package app
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            "dist/macos-${{ matrix.arch }}/抖音指数查询工具.app" \
+            "douyin-index-tool-v1.1.0-macos-${{ matrix.arch }}.zip"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: douyin-index-tool-v1.1.0-macos-${{ matrix.arch }}
+          path: douyin-index-tool-v1.1.0-macos-${{ matrix.arch }}.zip
+          if-no-files-found: error

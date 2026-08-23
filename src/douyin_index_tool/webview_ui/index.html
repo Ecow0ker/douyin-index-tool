@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>抖音指数查询工具</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="appShell">
+    <aside class="sidebar">
+      <div class="brand"><img class="brandIcon" src="app-icon.png" alt="应用图标"><strong>抖音指数查询工具</strong></div>
+      <nav>
+        <button class="navItem active" data-page="query"><span>⌕</span><b>查询任务</b></button>
+        <button class="navItem" data-page="accounts"><span>◎</span><b>账号中心</b><em id="accountBadge">0</em></button>
+        <button class="navItem" data-page="exports"><span>⇩</span><b>导出记录</b></button>
+      </nav>
+      <button id="aboutButton" class="aboutButton" type="button"><span class="aboutIcon" aria-hidden="true">i</span><b>关于</b></button>
+      <div class="version" id="version">v1.1.0</div>
+    </aside>
+
+    <main class="main">
+      <section class="page active" id="page-query">
+        <header class="pageHeader">
+          <div><h1>查询任务</h1><p>批量提取关键词综合指数与搜索指数</p></div>
+          <button class="secondary" id="goAccounts">账号中心</button>
+        </header>
+
+        <div class="queryGrid">
+          <section class="card configCard">
+            <h2>查询配置</h2>
+            <label class="field full"><span>关键词 <small>一行一个</small></span><textarea id="keywords" rows="8" placeholder="华为&#10;小米&#10;手机">华为</textarea></label>
+            <div class="twoCols">
+              <label class="field"><span>开始日期</span><input id="startDate" type="date"></label>
+              <label class="field"><span>结束日期</span><input id="endDate" type="date"></label>
+            </div>
+            <div class="twoCols">
+              <label class="field"><span>聚合周期</span>
+                <select id="period"><option value="daily">日</option><option value="weekly">周均</option><option value="monthly">月均</option><option value="quarterly">季度均</option><option value="yearly">年均</option></select>
+              </label>
+              <label class="field"><span>请求间隔（秒）</span><input id="interval" type="number" min="0" step="0.5" value="3"></label>
+            </div>
+            <fieldset class="field checks"><legend>指数类型</legend>
+              <label><input type="checkbox" name="channel" value="composite" checked> 抖音综合指数</label>
+              <label><input type="checkbox" name="channel" value="search" checked> 抖音搜索指数</label>
+            </fieldset>
+            <label class="field full"><span>导出目录</span><div class="pathRow"><input id="outputDir" readonly><button class="secondary" id="chooseDir">选择</button></div></label>
+            <div class="actions"><button class="primary" id="startBtn">开始查询</button><button class="secondary" id="resetBtn">重置</button></div>
+          </section>
+
+          <section class="card taskCard">
+            <div class="statusTop"><div><span class="statusDot" id="statusDot"></span><b id="statusTitle">等待开始</b><span id="statusDetail">请填写查询配置</span></div><strong id="percent">0%</strong></div>
+            <div class="progressTrack"><i id="progressBar"></i></div>
+            <div class="metrics">
+              <div><span>任务进度</span><strong id="progressText">0 / 0</strong></div>
+              <div><span>倒计时</span><strong><b id="countdownValue">0</b> 秒</strong></div>
+              <div><span>已获取</span><strong><b id="rowCount">0</b> 条</strong></div>
+            </div>
+            <div class="runControls"><button id="pauseBtn" class="secondary" disabled>暂停</button><button id="stopBtn" class="danger" disabled>停止</button></div>
+            <div class="logHeader"><h2>运行日志</h2><button class="textButton" id="clearLog">清空</button></div>
+            <div class="activityLog" id="activityLog"></div>
+          </section>
+        </div>
+
+        <section class="card resultsCard">
+          <div class="resultsHeader"><div><h2>查询结果</h2><span id="resultMeta">暂无数据</span></div><button class="secondary" id="openLatest" disabled>打开导出目录</button></div>
+          <div class="tableWrap"><table><thead><tr><th>关键词</th><th>日期</th><th>抖音综合指数</th><th>抖音搜索指数</th><th>标记</th></tr></thead><tbody id="tableBody"><tr><td colspan="5" class="empty">查询结果将在这里显示</td></tr></tbody></table></div>
+        </section>
+      </section>
+
+      <section class="page" id="page-accounts">
+        <header class="pageHeader"><div><h1>账号中心</h1><p>每位使用者在软件登录窗口内扫码，登录状态仅保存在本机</p></div></header>
+        <div class="accountLayout">
+          <section class="card loginCard">
+            <h2>扫码添加账号</h2>
+            <ol><li>打开登录窗口并使用抖音扫码。</li><li>确认页面进入“抖音指数”后，返回这里同步账号。</li><li>添加其他账号时，先在登录窗口退出当前账号，再由下一位使用者扫码。</li></ol>
+            <div class="actions stack"><button class="primary" id="openLogin">打开登录窗口</button><button class="secondary" id="syncLogin">同步当前登录账号</button></div>
+            <p class="accountMessage" id="accountMessage">尚未读取登录状态</p>
+          </section>
+          <section class="card accountListCard">
+            <div class="accountListHead"><h2>已保存账号</h2><select id="strategy"><option value="round_robin">顺序轮换</option><option value="random">随机切换</option></select></div>
+            <div id="accountList" class="accountList"></div>
+            <button class="danger outline" id="clearAccounts">清空账号</button>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-exports">
+        <header class="pageHeader"><div><h1>导出记录</h1><p>本次运行生成的 CSV 文件</p></div></header>
+        <section class="card exportCard"><div id="exportList" class="exportList"><div class="emptyBlock">暂无导出记录</div></div></section>
+      </section>
+    </main>
+  </div>
+  <div id="aboutModal" class="modal hidden">
+    <section class="aboutDialog" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+      <header class="aboutHead"><b id="aboutTitle">关于</b><button id="closeAbout" type="button" aria-label="关闭">&times;</button></header>
+      <div class="aboutBody">
+        <img src="app-icon.png" alt="抖音指数查询工具图标">
+        <h2>抖音指数查询工具</h2>
+        <p>支持扫码登录、多账号轮换、批量查询和 CSV 导出。</p>
+        <div class="aboutMeta"><b id="aboutVersion">版本：v1.1.0</b><span>QQ群：610645081</span></div>
+        <button id="aboutGithub" class="secondary" type="button">GitHub 项目</button>
+        <small>登录会话仅保存在当前电脑。</small>
+      </div>
+    </section>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

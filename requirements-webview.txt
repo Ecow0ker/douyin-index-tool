@@ -1,0 +1,10 @@
+pywebview==6.1
+pyinstaller==6.21.0
+cryptography>=42,<47
+# Xcode/CommandLineTools Python 3.8 用于 Intel Mac 本地交叉构建 arm64 应用。
+pyobjc-core==10.3.2; python_version < "3.9" and sys_platform == "darwin"
+pyobjc-framework-Cocoa==10.3.2; python_version < "3.9" and sys_platform == "darwin"
+pyobjc-framework-Quartz==10.3.2; python_version < "3.9" and sys_platform == "darwin"
+pyobjc-framework-WebKit==10.3.2; python_version < "3.9" and sys_platform == "darwin"
+pyobjc-framework-security==10.3.2; python_version < "3.9" and sys_platform == "darwin"
+pyobjc-framework-UniformTypeIdentifiers==10.3.2; python_version < "3.9" and sys_platform == "darwin"

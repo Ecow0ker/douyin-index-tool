@@ -1,0 +1,4 @@
+576df104b843d8e564f34efa55c96498ffc6c8174893c279c40fb47e2d60a3cb  douyin-index-tool-v1.1.0-macos-x64.zip
+685eabe6ea893c247fd899e570aa9d2ca9a2de0a63aaab5721531821f22e88ac  douyin-index-tool-v1.1.0-macos-arm64.zip
+59f80c81aa34f78954d7c029ceaeb44b31545e1a2ab939732f0faa8e2430461d  douyin-index-tool-v1.1.0-windows-x64.exe
+92d69fb8b20e8409c9ebc87b6cd05c129135ecf46e4c2d14d94061524a86e2cb  douyin-index-tool-v1.1.0-source.zip
